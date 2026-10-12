@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Run on main by neury-fw's release job, to bundle the new firmware.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,14 +22,17 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
+      - run: node scripts/fetch-firmware.ts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: npm run build
-      - if: github.event_name == 'push'
+      - if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
   deploy:
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:

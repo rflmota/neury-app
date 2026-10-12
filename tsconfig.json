@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "noEmit": true,
-    "types": ["vite/client", "w3c-web-serial"]
+    "types": ["vite/client", "w3c-web-serial", "w3c-web-usb"]
   },
   "include": ["src", "test"]
 }

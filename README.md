@@ -14,6 +14,10 @@ Live: https://rflmota.github.io/neury-app/
 
 The App needs Logger firmware with protocol version 1 (`v` replies `proto=1`). Loggers on older firmware need a one-time bench update over SWD; ask the maintainer.
 
+In Menu mode the App offers **Update firmware** when a newer release exists, or a custom `.bin`. It reboots the Logger into its bootloader (dapboot, `1209:db42`) and flashes it over WebUSB; recorded Pages are kept. If an update is interrupted, the Logger stays in the bootloader: use **Connect bootloader** to retry.
+
+Releases are tags `fw-v<semver>` with asset `neury-fw-<semver>.bin` on this repo. Browsers can't download release assets (no CORS), so CI bundles the newest `fw-v1.*` into the App (`scripts/fetch-firmware.ts`). Publishing a release must re-run the `ci` workflow on `main` (`workflow_dispatch`).
+
 ## Develop
 
     npm ci

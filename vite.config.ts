@@ -13,6 +13,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*'],
+      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,json,bin}'] },
       manifest: {
         name: 'Neury Logger',
         short_name: 'Neury',

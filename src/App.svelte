@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Logger, grantedPorts, requestPort } from './lib/logger';
+  import { download, grantedBootloader, requestBootloader } from './lib/dfu';
   import { gate, type Gate } from './lib/gate';
   import { parseStatus, type Status } from './lib/status';
   import { errorMessage } from './lib/errors';
@@ -8,6 +9,7 @@
   import StatusView from './StatusView.svelte';
   import Start from './Start.svelte';
   import Diagnostics from './Diagnostics.svelte';
+  import Update from './Update.svelte';
 
   const POLL_MS = 2000;
   const MAX_MISSED = 3;
@@ -21,6 +23,13 @@
   let missed = $state(0);
   let busy = $state(false);
   let message = $state('');
+  let notice = $state('');
+
+  // Firmware update: a Logger sitting in dapboot, an image waiting for it, the download progress.
+  let bootloader = $state.raw<USBDevice | null>(null);
+  let pending = $state.raw<ArrayBuffer | null>(null);
+  let written = $state<number | null>(null);
+  let total = $state(0);
 
   onMount(() => {
     if (!supported) return;
@@ -31,6 +40,7 @@
 
   async function connect() {
     message = '';
+    notice = '';
     const ports = await grantedPorts();
     const port = ports.length === 1 ? ports[0] : await requestPort().catch(() => null);
     if (!port) return;
@@ -89,6 +99,48 @@
       await refresh();
     }
   }
+
+  async function connectBootloader() {
+    message = '';
+    notice = '';
+    const device = await requestBootloader().catch(() => null);
+    if (device && pending) await flash(device, pending);
+    else bootloader = device;
+  }
+
+  // In Menu mode, `D` reboots the Logger into dapboot; its port drops right after the OK.
+  async function update(image: ArrayBuffer, name: string) {
+    if (!confirm(`Update the Logger firmware to ${name}? Recorded Pages are kept.`)) return;
+    message = '';
+    if (bootloader) return flash(bootloader, image);
+    const r = await logger!.cmd('D').catch(() => null);
+    if (!r?.ok) {
+      message = errorMessage(r ? r.err : 'timeout');
+      return;
+    }
+    disconnected();
+    pending = image;
+    for (let i = 0; i < 20 && pending === image; i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      const device = await grantedBootloader();
+      if (device && pending === image) return flash(device, image);
+    }
+  }
+
+  async function flash(device: USBDevice, image: ArrayBuffer) {
+    pending = null;
+    bootloader = null;
+    total = image.byteLength;
+    written = 0;
+    try {
+      await download(device, new Uint8Array(image), (n) => (written = n));
+      notice = 'Firmware updated. The Logger restarts by itself; connect it again.';
+    } catch (e) {
+      message = `Update failed: ${(e as Error).message}. The Logger stays in its bootloader; connect the bootloader to retry.`;
+    } finally {
+      written = null;
+    }
+  }
 </script>
 
 <header><h1>Neury</h1></header>
@@ -96,9 +148,23 @@
 <main>
   {#if !supported}
     <p class="warn">Neury needs Chrome or Edge on a desktop computer.</p>
+  {:else if written !== null}
+    <p>Updating firmware… Keep the Logger plugged in.</p>
+    <progress max={total} value={written}></progress>
+  {:else if pending}
+    <p>The Logger is restarting into its bootloader.</p>
+    <p>If nothing happens, select the bootloader ("DAPBoot DFU Bootloader") to continue.</p>
+    <button onclick={connectBootloader}>Select bootloader</button>
+  {:else if bootloader}
+    <p>The Logger is in its bootloader. Choose the firmware to install.</p>
+    <Update fw={null} busy={false} {update} />
   {:else if !logger}
     <p>Plug in the Logger with its menu cable, then connect.</p>
     <button onclick={connect}>Connect</button>
+    <p class="hint">
+      Logger stuck after an interrupted update?
+      <button class="link" onclick={connectBootloader}>Connect bootloader</button>
+    </p>
   {:else if version === 'old'}
     <p class="warn">
       Unsupported firmware. This Logger needs a one-time bench update.
@@ -110,6 +176,7 @@
     {#if missed >= MAX_MISSED}<p class="warn">The Logger is not responding.</p>{/if}
     <StatusView {status} />
     <Start {status} {busy} {run} />
+    {#if status.state !== 'rec'}<Update fw={status.fw} {busy} {update} />{/if}
     <Diagnostics {status} {busy} {run} />
   {:else}
     <p>Connecting…</p>
@@ -117,6 +184,7 @@
 
   {#if busy}<p>Working… erasing can take up to 2 minutes.</p>{/if}
   {#if message}<p class="error">{message}</p>{/if}
+  {#if notice}<p class="ok">{notice}</p>{/if}
 </main>
 
 <footer>App {__COMMIT__}</footer>
