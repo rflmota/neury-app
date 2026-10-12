@@ -1,0 +1,17 @@
+[
+  {"cmd": "a", "note": "erase", "lines": ["OK pages=0"]},
+  {"cmd": "v", "note": "", "lines": ["OK fw=0.1.0 proto=1"]},
+  {"cmd": "s", "note": "", "lines": ["OK fw=0.1.0 proto=1 state=menu ch=1 nand=W25M02GV nand_id=EFAB21 intan=0 pages=0/8 rtc=0 time=0 start=0 efail=0 pfail=0 ecc_corr=0 ecc_unc=0 busy_to=0 overrun=0"]},
+  {"cmd": "q", "note": "", "lines": ["OK ch=1"]},
+  {"cmd": "h", "note": "", "lines": ["OK pages=0"]},
+  {"cmd": "?", "note": "", "lines": ["?\thelp", "q\tquery channels", "1\t1 channel", "2\t2 channels", "h\tpages written", "a\terase all", "r\tmark full", "x\tstart recording", "e\texport uV", "E\texport first 100 pages", "b\tbinary dump", "s\tstatus", "v\tversion", "D\tbootloader", "OK"]},
+  {"cmd": "2", "note": "set 2ch with pages=0", "lines": ["OK ch=2"]},
+  {"cmd": "1", "note": "set 1ch with pages=0", "lines": ["OK ch=1"]},
+  {"cmd": "Z", "note": "unknown letter", "lines": ["ERR unknown"]},
+  {"cmd": "x", "note": "start recording", "lines": ["OK"]},
+  {"cmd": "s", "note": "status while recording", "lines": ["OK fw=0.1.0 proto=1 state=rec ch=1 nand=W25M02GV nand_id=EFAB21 intan=0 pages=0/8 rtc=0 time=0 start=0 efail=0 pfail=0 ecc_corr=0 ecc_unc=0 busy_to=0 overrun=0"]},
+  {"cmd": "1", "note": "refused while recording", "lines": ["ERR rec"]},
+  {"cmd": "h", "note": "pages while recording", "lines": ["OK pages=0"]},
+  {"cmd": "s", "note": "status when full", "lines": ["OK fw=0.1.0 proto=1 state=full ch=1 nand=W25M02GV nand_id=EFAB21 intan=0 pages=8/8 rtc=0 time=0 start=0 efail=0 pfail=0 ecc_corr=0 ecc_unc=0 busy_to=0 overrun=0"]},
+  {"cmd": "2", "note": "refused with pages>0", "lines": ["ERR notempty"]}
+]
