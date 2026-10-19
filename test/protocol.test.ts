@@ -62,8 +62,8 @@ describe('status', () => {
 
   it('computes hours left from free Pages and channels', () => {
     const s = parseStatus(reply('s').kv);
-    expect(hoursLeft({ ...s, pages: 0, cap: 131072, ch: 1 })).toBeCloseTo(186.4, 1);
-    expect(hoursLeft({ ...s, pages: 0, cap: 131072, ch: 2 })).toBeCloseTo(93.2, 1);
+    expect(hoursLeft({ ...s, pages: 0, cap: 131072, ch: 1 })).toBeCloseTo(185.7, 1);
+    expect(hoursLeft({ ...s, pages: 0, cap: 131072, ch: 2 })).toBeCloseTo(92.8, 1);
   });
 });
 

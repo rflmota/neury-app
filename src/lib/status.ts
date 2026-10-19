@@ -24,7 +24,7 @@ export interface Status {
 }
 
 const RATE_HZ = 200;
-const PAGE_BYTES = 2048;
+const PAGE_SAMPLE_BYTES = 2040; // 2048-byte Page minus its 8-byte header
 const SAMPLE_BYTES = 2;
 
 export function parseStatus(kv: Kv): Status {
@@ -52,5 +52,5 @@ export function parseStatus(kv: Kv): Status {
 }
 
 export function hoursLeft(s: Status): number {
-  return ((s.cap - s.pages) * PAGE_BYTES) / (SAMPLE_BYTES * s.ch * RATE_HZ * 3600);
+  return ((s.cap - s.pages) * PAGE_SAMPLE_BYTES) / (SAMPLE_BYTES * s.ch * RATE_HZ * 3600);
 }
