@@ -5,3 +5,5 @@ node_modules/
 dist/
 public/firmware/
 public/firmware.json
+test-results/
+playwright-report/
