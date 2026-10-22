@@ -1,9 +1,10 @@
 // Transcripts recorded from Target B (HAL test build, 8-Page capture area).
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import transcripts from './fixtures/target-b.json';
 import { parseReply } from '../src/lib/reply';
-import { hoursLeft, parseStatus } from '../src/lib/status';
+import { hoursLeft, parseStatus, type Status } from '../src/lib/status';
 import { gate } from '../src/lib/gate';
+import { clockSetter } from '../src/lib/clock';
 import { fakeLogger } from './fake';
 
 const reply = (cmd: string, note = '') =>
@@ -82,5 +83,36 @@ describe('Logger', () => {
 
   it('times out when the Logger is silent', async () => {
     await expect(fakeLogger({}).cmd('s')).rejects.toThrow('timeout');
+  });
+});
+
+describe('clock', () => {
+  it('sets the clock on the first rtc=1 in Menu mode, retrying after ERR rtc', async () => {
+    vi.setSystemTime(1760000000_500);
+    const menu = parseStatus(reply('s').kv);
+    const rec = parseStatus(reply('s', 'status while recording').kv);
+    const answers = [['ERR rtc'], ['OK time=1760000000']];
+    const sent: string[] = [];
+    const setClock = clockSetter({
+      cmd: async (letter, arg) => {
+        sent.push(`${letter}${arg}`);
+        return parseReply(answers.shift()!);
+      },
+    });
+    // Each status poll and how many `u` have been sent after it.
+    const polls: [Status, number][] = [
+      [menu, 0],
+      [{ ...rec, rtc: true }, 0],
+      [{ ...menu, rtc: true }, 1],
+      [menu, 1],
+      [{ ...menu, rtc: true }, 2],
+      [{ ...menu, rtc: true }, 2],
+    ];
+    for (const [s, n] of polls) {
+      await setClock(s);
+      expect(sent).toHaveLength(n);
+    }
+    expect(sent).toEqual(['u1760000000', 'u1760000000']);
+    vi.useRealTimers();
   });
 });

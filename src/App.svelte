@@ -6,6 +6,7 @@
   import { parseStatus, type Status } from './lib/status';
   import { errorMessage } from './lib/errors';
   import { exportCsv } from './lib/export';
+  import { clockSetter } from './lib/clock';
   import type { Reply } from './lib/reply';
   import StatusView from './StatusView.svelte';
   import Start from './Start.svelte';
@@ -25,6 +26,7 @@
   let busy = $state(false);
   let message = $state('');
   let notice = $state('');
+  let setClock: ReturnType<typeof clockSetter>;
 
   // Firmware update: a Logger sitting in dapboot, an image waiting for it, the download progress.
   let bootloader = $state.raw<USBDevice | null>(null);
@@ -57,8 +59,8 @@
     }
     version = gate(await logger.cmd('v').catch(() => null));
     if (version !== 'ok') return;
+    setClock = clockSetter(logger);
     await refresh();
-    if (status?.state === 'menu' && status.rtc) await logger.cmd('u', Math.floor(Date.now() / 1000));
     poll();
   }
 
@@ -82,7 +84,10 @@
   async function refresh() {
     try {
       const r = await logger!.cmd('s');
-      if (r.ok) status = parseStatus(r.kv);
+      if (r.ok) {
+        status = parseStatus(r.kv);
+        await setClock(status);
+      }
       missed = 0;
     } catch {
       missed++;
