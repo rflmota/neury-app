@@ -8,6 +8,7 @@ const commit = (process.env.GITHUB_SHA ?? execSync('git rev-parse HEAD').toStrin
 export default defineConfig({
   base: './',
   define: { __COMMIT__: JSON.stringify(commit) },
+  assetsInclude: ['**/*.bin'],
   plugins: [
     svelte(),
     VitePWA({

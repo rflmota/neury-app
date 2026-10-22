@@ -4,23 +4,10 @@ import transcripts from './fixtures/target-b.json';
 import { parseReply } from '../src/lib/reply';
 import { hoursLeft, parseStatus } from '../src/lib/status';
 import { gate } from '../src/lib/gate';
-import { Logger } from '../src/lib/logger';
+import { fakeLogger } from './fake';
 
 const reply = (cmd: string, note = '') =>
   parseReply(transcripts.find((t) => t.cmd === cmd && t.note === note)!.lines);
-
-// A fake Logger port answering each write with a scripted reply, delivered in small chunks.
-function fakeLogger(replies: Record<string, string>, chunk = 5) {
-  let ctrl!: ReadableStreamDefaultController<Uint8Array>;
-  const readable = new ReadableStream<Uint8Array>({ start: (c) => void (ctrl = c) });
-  const writable = new WritableStream<Uint8Array>({
-    write(bytes) {
-      const out = new TextEncoder().encode(replies[new TextDecoder().decode(bytes)] ?? '');
-      for (let i = 0; i < out.length; i += chunk) ctrl.enqueue(out.slice(i, i + chunk));
-    },
-  });
-  return new Logger({ readable, writable } as unknown as SerialPort);
-}
 
 describe('reply', () => {
   it('parses OK with key=values', () => {

@@ -5,6 +5,7 @@
   import { gate, type Gate } from './lib/gate';
   import { parseStatus, type Status } from './lib/status';
   import { errorMessage } from './lib/errors';
+  import { exportCsv } from './lib/export';
   import type { Reply } from './lib/reply';
   import StatusView from './StatusView.svelte';
   import Start from './Start.svelte';
@@ -30,6 +31,10 @@
   let pending = $state.raw<ArrayBuffer | null>(null);
   let written = $state<number | null>(null);
   let total = $state(0);
+
+  // Export progress in Pages.
+  let exported = $state<number | null>(null);
+  let exportTotal = $state(0);
 
   onMount(() => {
     if (!supported) return;
@@ -97,6 +102,33 @@
     } finally {
       busy = false;
       await refresh();
+    }
+  }
+
+  async function exportData() {
+    const name = `neury-${new Date().toISOString().slice(0, 10)}.csv`;
+    const handle = await window
+      .showSaveFilePicker({ suggestedName: name, types: [{ description: 'CSV', accept: { 'text/csv': ['.csv'] } }] })
+      .catch(() => null);
+    if (!handle) return;
+    const file = await handle.createWritable();
+    busy = true;
+    message = '';
+    notice = '';
+    exported = 0;
+    try {
+      await exportCsv(logger!, (text) => file.write(text), (n, t) => {
+        exported = n;
+        exportTotal = t;
+      });
+      await file.close();
+      notice = `Exported to ${handle.name}.`;
+    } catch (e) {
+      await file.abort();
+      message = errorMessage((e as Error).message);
+    } finally {
+      busy = false;
+      exported = null;
     }
   }
 
@@ -176,13 +208,22 @@
     {#if missed >= MAX_MISSED}<p class="warn">The Logger is not responding.</p>{/if}
     <StatusView {status} />
     <Start {status} {busy} {run} />
+    {#if status.state !== 'rec' && status.pages > 0}
+      <section>
+        <button disabled={busy} onclick={exportData}>Export CSV</button>
+        {#if exported !== null}
+          <progress max={exportTotal} value={exported}></progress>
+          {exported.toLocaleString()} / {exportTotal.toLocaleString()} Pages
+        {/if}
+      </section>
+    {/if}
     {#if status.state !== 'rec'}<Update fw={status.fw} {busy} {update} />{/if}
     <Diagnostics {status} {busy} {run} />
   {:else}
     <p>Connecting…</p>
   {/if}
 
-  {#if busy}<p>Working… erasing can take up to 2 minutes.</p>{/if}
+  {#if busy && exported === null}<p>Working… erasing can take up to 2 minutes.</p>{/if}
   {#if message}<p class="error">{message}</p>{/if}
   {#if notice}<p class="ok">{notice}</p>{/if}
 </main>
