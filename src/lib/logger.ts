@@ -3,7 +3,7 @@ import { isFinal, parseReply, type Reply } from './reply';
 export const USB_FILTER = { usbVendorId: 0x0483, usbProductId: 0x5740 };
 
 // Idle timeout per command: how long to wait for the next bytes of its reply.
-const TIMEOUT_MS: Record<string, number> = { a: 120_000, t: 120_000, x: 120_000, s: 1_000 };
+const TIMEOUT_MS: Record<string, number> = { a: 120_000, t: 3_600_000, x: 120_000, s: 1_000 };
 const DEFAULT_TIMEOUT_MS = 3_000;
 
 export interface StreamIo {

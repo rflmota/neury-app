@@ -7,7 +7,7 @@
   let result = $state('');
 
   async function selfTest() {
-    if (!confirm('The self-test erases all Pages and can take 2 minutes. Run it?')) return;
+    if (!confirm('The self-test erases all Pages and takes about 25 minutes. Run it?')) return;
     result = '';
     const r = await run('t');
     if (r?.ok) result = `Passed: ${r.kv.pages} Pages checked.`;

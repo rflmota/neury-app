@@ -228,7 +228,7 @@
     <p>Connecting…</p>
   {/if}
 
-  {#if busy && exported === null}<p>Working… erasing can take up to 2 minutes.</p>{/if}
+  {#if busy && exported === null}<p>Working… erasing can take up to 2 minutes, the self-test about 25.</p>{/if}
   {#if message}<p class="error">{message}</p>{/if}
   {#if notice}<p class="ok">{notice}</p>{/if}
 </main>
