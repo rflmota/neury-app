@@ -10,6 +10,8 @@ Live: https://rflmota.github.io/neury-app/
 2. Open the App and press **Connect**.
 3. Pick channels and press **Start Recording**, then unplug the menu cable.
 
+Step-by-step guide with screenshots: https://rflmota.github.io/neury-app/guide/
+
 ## Firmware
 
 The App needs Logger firmware with protocol version 1 (`v` replies `proto=1`). Loggers on older firmware need a one-time bench update over SWD; ask the maintainer.
@@ -26,3 +28,5 @@ Releases are tags `fw-v<semver>` with asset `neury-fw-<semver>.bin` on this repo
     npm test         # Vitest on transcripts recorded from the Targets
 
 CI runs the same checks and deploys `main` to GitHub Pages.
+
+The guide in `public/guide/` is captured on Target B by `e2e/guide.e2e.ts` (`NEURY_GUIDE=1`); copy its `test-results/.../guide/` output there after UI changes.

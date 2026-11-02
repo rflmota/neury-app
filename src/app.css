@@ -18,6 +18,12 @@ body {
   padding: 1rem;
 }
 
+header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
 h1 {
   color: var(--accent);
   font-size: 1.4rem;

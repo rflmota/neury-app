@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="../icons/icon.svg" />
+    <title>How to use the Neury App</title>
+    <style>
+      :root {
+        --fg: #1f1f1f;
+        --muted: #6b6b6b;
+        --accent: #2a6f97;
+        --line: #e2e2dc;
+        font: 15px/1.5 -apple-system, system-ui, 'Segoe UI', 'Helvetica Neue', sans-serif;
+        color: var(--fg);
+        background: #f8f8f6;
+      }
+      body {
+        margin: 0 auto;
+        max-width: 64rem;
+        padding: 1rem;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.5rem 1.5rem;
+        border-bottom: 1px solid var(--line);
+      }
+      h1 {
+        color: var(--accent);
+        font-size: 1.4rem;
+        margin: 0.5rem 0;
+      }
+      header p {
+        margin: 0.5rem 0;
+        color: var(--muted);
+      }
+      a,
+      button.link {
+        color: var(--accent);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 14rem 1fr;
+        gap: 2rem;
+        margin-top: 1rem;
+      }
+      ol {
+        margin: 0;
+        padding-left: 1.6rem;
+      }
+      li {
+        padding: 0.15rem 0;
+        cursor: pointer;
+      }
+      li.current {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      h2 {
+        font-size: 1.15rem;
+        margin: 0 0 0.25rem;
+      }
+      .step p {
+        margin: 0 0 0.75rem;
+        max-width: 40rem;
+      }
+      .step img {
+        display: block;
+        max-width: 100%;
+        width: 720px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #fff;
+      }
+      .step + .step {
+        margin-top: 2.5rem;
+      }
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+      nav button {
+        font: inherit;
+        padding: 0.4rem 1rem;
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+      }
+      nav button:disabled {
+        opacity: 0.4;
+        cursor: default;
+      }
+      button.link {
+        font: inherit;
+        border: none;
+        background: none;
+        padding: 0;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .all nav button,
+      .all #count {
+        display: none;
+      }
+      @media (max-width: 50rem) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        aside {
+          display: none;
+        }
+      }
+      @media print {
+        header a,
+        header button,
+        aside,
+        nav {
+          display: none;
+        }
+        .layout {
+          display: block;
+        }
+        .step {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>How to use the Neury App</h1>
+      <p>Captured on the test build, whose memory fills in about 40 seconds.</p>
+      <a href="../">Open the App</a>
+      <a href="guide.md">Markdown</a>
+      <button class="link" id="mode">Show all steps</button>
+    </header>
+    <div class="layout">
+      <aside><ol id="list"></ol></aside>
+      <main>
+        <nav>
+          <button id="prev">Previous</button>
+          <button id="next">Next</button>
+          <span id="count"></span>
+        </nav>
+        <div id="steps"></div>
+      </main>
+    </div>
+    <script type="module">
+      const steps = await (await fetch('steps.json')).json();
+      const $ = (id) => document.getElementById(id);
+      let all = false;
+      let i = 0;
+
+      const view = (s, n) =>
+        `<section class="step"><h2>${n + 1}. ${s.title}</h2><p>${s.text}</p>` +
+        (s.image ? `<img src="${s.image}" alt="${s.title}" />` : '') +
+        '</section>';
+
+      $('list').innerHTML = steps.map((s) => `<li>${s.title}</li>`).join('');
+      [...$('list').children].forEach((li, n) => (li.onclick = () => go(n)));
+
+      function render() {
+        document.body.classList.toggle('all', all);
+        $('mode').textContent = all ? 'Show one step at a time' : 'Show all steps';
+        $('steps').innerHTML = all ? steps.map(view).join('') : view(steps[i], i);
+        $('prev').disabled = i === 0;
+        $('next').disabled = i === steps.length - 1;
+        $('count').textContent = `Step ${i + 1} of ${steps.length}`;
+        [...$('list').children].forEach((li, n) => li.classList.toggle('current', !all && n === i));
+      }
+
+      function go(n) {
+        i = Math.max(0, Math.min(steps.length - 1, n));
+        all = false;
+        history.replaceState(null, '', `#${i + 1}`);
+        render();
+        scrollTo(0, 0);
+      }
+
+      $('prev').onclick = () => go(i - 1);
+      $('next').onclick = () => go(i + 1);
+      $('mode').onclick = () => {
+        all = !all;
+        render();
+      };
+      addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') go(i - 1);
+        if (e.key === 'ArrowRight') go(i + 1);
+      });
+      // Printing always prints every step.
+      addEventListener('beforeprint', () => {
+        $('steps').innerHTML = steps.map(view).join('');
+      });
+      addEventListener('afterprint', render);
+
+      i = Math.max(0, Math.min(steps.length - 1, Number(location.hash.slice(1)) - 1 || 0));
+      render();
+    </script>
+  </body>
+</html>

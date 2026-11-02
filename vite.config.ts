@@ -14,7 +14,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*'],
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,json,bin}'] },
+      // The guide is online only: not precached, and not answered with the App's index.html.
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,json,bin}'],
+        globIgnores: ['guide/**'],
+        navigateFallbackDenylist: [/\/guide\//],
+      },
       manifest: {
         name: 'Neury Logger',
         short_name: 'Neury',

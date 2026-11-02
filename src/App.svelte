@@ -149,6 +149,7 @@
   async function update(image: ArrayBuffer, name: string) {
     if (!confirm(`Update the Logger firmware to ${name}? Recorded Pages are kept.`)) return;
     message = '';
+    notice = '';
     if (bootloader) return flash(bootloader, image);
     const r = await logger!.cmd('D').catch(() => null);
     if (!r?.ok) {
@@ -180,7 +181,7 @@
   }
 </script>
 
-<header><h1>Neury</h1></header>
+<header><h1>Neury</h1><a href="guide/">How to use</a></header>
 
 <main>
   {#if !supported}

@@ -1,0 +1,87 @@
+[
+  {
+    "title": "Open the App",
+    "text": "Plug the Logger into the computer with its menu cable: it powers up in Menu mode. Open the App in Chrome or Edge on a desktop computer.",
+    "image": "01.png"
+  },
+  {
+    "title": "Connect",
+    "text": "Press Connect. The first time, Chrome lists the serial ports: pick \"Neury Logger\" and press Connect. After that, the App connects straight away while it is the only Logger plugged in.",
+    "image": "02.png"
+  },
+  {
+    "title": "Check the status",
+    "text": "The App shows the Logger's state, channels, memory used with the hours left, and its firmware. On a Logger with a clock it also shows the Logger time, and sets the clock by itself.",
+    "image": "03.png"
+  },
+  {
+    "title": "Choose the channels",
+    "text": "Before the first Recording, choose 1 or 2 channels. A Logger records for about 98 hours with 1 channel, or about 50 hours with 2.",
+    "image": "04.png"
+  },
+  {
+    "title": "Start Recording",
+    "text": "Press Start Recording.",
+    "image": "05.png"
+  },
+  {
+    "title": "Unplug the menu cable",
+    "text": "Unplug the menu cable. The Logger keeps recording on its battery, at 200 samples per second, until its memory is Full.",
+    "image": "06.png"
+  },
+  {
+    "title": "Full",
+    "text": "When its memory is Full, the Logger stops recording. Left on its own, it blinks yellow at 10, 20 and 30 seconds, then sleeps. To export, power it up with the menu cable plugged in: it starts in Menu mode, and you connect as before.",
+    "image": "07.png"
+  },
+  {
+    "title": "Export CSV",
+    "text": "Press Export CSV, then choose where Chrome saves the file. It has one row per sample: the time in seconds and µV for each channel.",
+    "image": "08.png"
+  },
+  {
+    "title": "Exported",
+    "text": "A comment line in the file marks where each Segment starts. The Pages stay on the Logger until you erase them.",
+    "image": "09.png"
+  },
+  {
+    "title": "Update firmware",
+    "text": "When a newer firmware is released, the App offers Update firmware. Press it and confirm. The App restarts the Logger into its bootloader and installs the firmware over USB; recorded Pages are kept. The first time, press Select bootloader if the App asks, then pick \"DAPBoot DFU Bootloader\" in Chrome's list and press Connect.",
+    "image": "10.png"
+  },
+  {
+    "title": "Wait for the update",
+    "text": "Keep the Logger plugged in until the update finishes.",
+    "image": "11.png"
+  },
+  {
+    "title": "Connect again",
+    "text": "The Logger restarts by itself. Press Connect again.",
+    "image": "12.png"
+  },
+  {
+    "title": "Custom firmware",
+    "text": "To install a .bin file you were given instead, open Custom firmware, choose the file and confirm. The update then runs as above.",
+    "image": "13.png"
+  },
+  {
+    "title": "Erase and start new",
+    "text": "To reuse a Logger, press Erase and start new and confirm. This deletes all Pages, so export first. Erasing takes up to about 2 minutes.",
+    "image": "14.png"
+  },
+  {
+    "title": "Diagnostics",
+    "text": "Open Diagnostics to see the memory chip, the INTAN, the clock and the error counters. Include them when you report a problem.",
+    "image": "15.png"
+  },
+  {
+    "title": "Run self-test",
+    "text": "Run self-test erases the Logger and checks every Page of its memory. It takes about 25 minutes: keep the App open and the Logger plugged in.",
+    "image": "16.png"
+  },
+  {
+    "title": "Self-test result",
+    "text": "Passed shows how many Pages were checked. If it fails, the App shows the first bad Page: report it with the Diagnostics.",
+    "image": "17.png"
+  }
+]
